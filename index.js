@@ -34,6 +34,12 @@ const delete_issue = core.getInput('delete') || ''
     // check branch name with the rules on PR
     if (eventPayload.pull_request && re.test(eventPayload.pull_request.head.ref) === false) {
       core.setFailed(`The head branch of pull request ${eventPayload.pull_request.number} has an incorrent name. Please update the branch name to the approved regex naming convention format. Regex: ${regex} Flags: ${flags}`)
+      await octokit.rest.issues.addLabels({
+        issue_number: repo.issue.number,
+        owner: owner,
+        repo: repo,
+        labels: [ 'Invalid Branch Name' ]
+      })
     }
     
     // check branch name with the rules on branch deleted
@@ -56,8 +62,7 @@ const delete_issue = core.getInput('delete') || ''
             }
           }
         `
-        console.log(`endCursor`, endCursor);
-        
+       
         let hasNextPage = false
         let dataJSON = null
 
