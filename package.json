@@ -1,31 +1,42 @@
 {
-  "name": "github-repo-branch-naming-policy-action",
-  "version": "1.1.0",
-  "description": "A GitHub Action which prevents pull requests from being merged and sends issue notifications if a branch is not following the configured naming convention.",
-  "author": {
-    "name": "GitHub Expert Services",
-    "email": "services@github.com",
-    "url": "https://services.github.com"
-  },
-  "contributors": [
-    {
-      "name": "Nick Nagel",
-      "email": "nicklegan@github.com",
-      "url": "https://github.com/nicklegan"
-    }
-  ],
-  "license": "MIT",
-  "repository": "github:nicklegan/github-repo-branch-naming-policy-action",
-  "engines": {
-    "node": ">=16",
-    "npm": ">=7"
-  },
-  "main": "index.js",
+  "name": "branch-naming",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "npx @vercel/ncc build index.js --out dist --license licenses.txt --quiet --minify"
+    "build": "tsc -p tsconfig.build.json",
+    "prestart": "npm run build",
+    "start": "tsc && node dist/src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "ncc build dist/src/index.js --license licenses.txt"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ring910/branch-naming.git"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.9.0",
-    "@actions/github": "^5.0.3"
+    "@actions/core": "1.10.0",
+    "@actions/github": "^5.1.1",
+    "@octokit/plugin-paginate-rest": "6.1.2",
+    "@octokit/types": "9.2.3",
+    "@types/semver": "7.5.0",
+    "assert": "2.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "29.5.2",
+    "@types/node": "20.2.5",
+    "@typescript-eslint/parser": "5.59.9",
+    "@vercel/ncc": "0.36.1",
+    "ansi-styles": "5.2.0",
+    "eslint": "8.42.0",
+    "eslint-plugin-github": "4.8.0",
+    "eslint-plugin-jest": "27.2.1",
+    "js-yaml": "4.1.0",
+    "npm-package-json-lint": "6.4.0",
+    "prettier": "2.8.8",
+    "ts-jest": "29.1.0",
+    "typescript": "5.1.3"
   }
 }
