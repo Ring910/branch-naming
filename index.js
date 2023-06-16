@@ -19,6 +19,8 @@ const delete_issue = core.getInput('delete') || ''
 
 ;(async () => {
   try {
+    
+    // check branch name with the rules on branch created
     if (event_name === 'create' && ref_type === 'branch' && re.test(ref) === false) {
       await octokit.rest.issues.create({
         owner: owner,
@@ -28,9 +30,13 @@ const delete_issue = core.getInput('delete') || ''
         assignee: sender
       })
     }
+    
+    // check branch name with the rules on PR
     if (eventPayload.pull_request && re.test(eventPayload.pull_request.head.ref) === false) {
       core.setFailed(`The head branch of pull request ${eventPayload.pull_request.number} has an incorrent name. Please update the branch name to the approved regex naming convention format. Regex: ${regex} Flags: ${flags}`)
     }
+    
+    // check branch name with the rules on branch deleted
     if (event_name === 'delete' && ref_type === 'branch' && re.test(ref) === false) {
       try {
         let endCursor = null
@@ -50,6 +56,8 @@ const delete_issue = core.getInput('delete') || ''
             }
           }
         `
+        console.log(`endCursor`, endCursor);
+        
         let hasNextPage = false
         let dataJSON = null
 
@@ -73,6 +81,7 @@ const delete_issue = core.getInput('delete') || ''
             }
 
             if (issue.title === `:no_good: Branch \`${ref}\` has an incorrect name`) {
+              // delete issue instead of closing the issue
               if (delete_issue === 'true') {
                 try {
                   const query = /* GraphQL */ `
