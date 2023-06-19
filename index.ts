@@ -5,12 +5,13 @@ import * as github from "@actions/github";
 const token = core.getInput("token", { required: true });
 const octokit = github.getOctokit(token);
 const process = require("fs");
-const eventPayload = process.env.GITHUB_EVENT_PATH;
+
+const eventPayload = github.context.payload;
 const event_name = process.env.GITHUB_EVENT_NAME;
 
-const owner = eventPayload.repository.owner.login;
-const repo = eventPayload.repository.name;
-const sender = eventPayload.sender.login;
+const owner: any = eventPayload.repository?.owner.login;
+const repo: any = eventPayload.repository?.name;
+const sender = eventPayload.sender?.login;
 const ref = eventPayload.ref;
 const ref_type = eventPayload.ref_type;
 
