@@ -6,9 +6,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prestart": "npm run build",
-    "start": "tsc && node dist/src/index.js",
+    "start": "tsc && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "package": "ncc build dist/src/index.js --license licenses.txt"
+    "package": "ncc build dist/index.js --license licenses.txt"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,8 @@
     "@octokit/plugin-paginate-rest": "6.1.2",
     "@octokit/types": "9.2.3",
     "@types/semver": "7.5.0",
-    "assert": "2.0.0"
+    "assert": "2.0.0",
+    "ncc": "^0.3.6"
   },
   "devDependencies": {
     "@types/jest": "29.5.2",
