@@ -4,8 +4,9 @@ import * as github from "@actions/github";
 // const github = require("@actions/github");
 const token = core.getInput("token", { required: true });
 const octokit = github.getOctokit(token);
-const { eventPayload } = require("process.env.GITHUB_EVENT_PATH");
-const event_name = process.env.GITHUB_EVENT_NAME;
+const fs = require("fs");
+const eventPayload = fs.process.env.GITHUB_EVENT_PATH;
+const event_name = fs.process.env.GITHUB_EVENT_NAME;
 
 const owner = eventPayload.repository.owner.login;
 const repo = eventPayload.repository.name;
