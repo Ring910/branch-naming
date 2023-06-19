@@ -11,6 +11,7 @@ const repo: any = eventPayload.repository?.name;
 const sender = eventPayload.sender?.login;
 const ref = eventPayload.ref;
 const ref_type = eventPayload.ref_type;
+const issue_number: any = eventPayload.issue?.number;
 
 const regex = core.getInput("regex");
 const flags = core.getInput("flags") || "i";
@@ -40,6 +41,12 @@ const delete_issue = core.getInput("delete") || "";
       core.setFailed(
         `The head branch of pull request ${eventPayload.pull_request.number} has an incorrent name. Please update the branch name to the approved regex naming convention format. Regex: ${regex} Flags: ${flags}`
       );
+      await octokit.rest.issues.addLabels({
+        issue_number: issue_number,
+        owner: owner,
+        repo: repo,
+        labels: ["Invalid Branch Name"],
+      });
     }
     if (
       event_name === "delete" &&
