@@ -63,12 +63,13 @@ const delete_issue = core.getInput("delete") || "";
         if (eventPayload.pull_request &&
             re.test(eventPayload.pull_request.head.ref) === false) {
             core.setFailed(`The head branch of pull request ${eventPayload.pull_request.number} has an incorrent name. Please update the branch name to the approved regex naming convention format. Regex: ${regex} Flags: ${flags}`);
-            await octokit.rest.issues.addLabels({
-                issue_number: issue_number,
-                owner: owner,
-                repo: repo,
-                labels: ["Invalid Branch Name"],
-            });
+            console.log(issue_number);
+            // await octokit.rest.issues.addLabels({
+            //   issue_number: issue_number,
+            //   owner: owner,
+            //   repo: repo,
+            //   labels: ["Invalid Branch Name"],
+            // });
         }
         if (event_name === "delete" &&
             ref_type === "branch" &&
