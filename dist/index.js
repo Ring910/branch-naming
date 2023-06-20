@@ -29,7 +29,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var _a, _b, _c, _d;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
@@ -42,12 +42,12 @@ const repo = (_b = eventPayload.repository) === null || _b === void 0 ? void 0 :
 const sender = (_c = eventPayload.sender) === null || _c === void 0 ? void 0 : _c.login;
 const ref = eventPayload.ref;
 const ref_type = eventPayload.ref_type;
-const issue_number = (_d = eventPayload.issue) === null || _d === void 0 ? void 0 : _d.number;
 const regex = core.getInput("regex");
 const flags = core.getInput("flags") || "i";
 const re = new RegExp(regex, flags);
 const delete_issue = core.getInput("delete") || "";
 (async () => {
+    var _a;
     try {
         if (event_name === "create" &&
             ref_type === "branch" &&
@@ -63,13 +63,14 @@ const delete_issue = core.getInput("delete") || "";
         if (eventPayload.pull_request &&
             re.test(eventPayload.pull_request.head.ref) === false) {
             core.setFailed(`The head branch of pull request ${eventPayload.pull_request.number} has an incorrent name. Please update the branch name to the approved regex naming convention format. Regex: ${regex} Flags: ${flags}`);
+            const issue_number = (_a = eventPayload.issue) === null || _a === void 0 ? void 0 : _a.number;
             console.log(issue_number);
-            // await octokit.rest.issues.addLabels({
-            //   issue_number: issue_number,
-            //   owner: owner,
-            //   repo: repo,
-            //   labels: ["Invalid Branch Name"],
-            // });
+            await octokit.rest.issues.addLabels({
+                issue_number: issue_number,
+                owner: owner,
+                repo: repo,
+                labels: ["Invalid Branch Name"],
+            });
         }
         if (event_name === "delete" &&
             ref_type === "branch" &&
