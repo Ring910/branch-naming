@@ -37,8 +37,7 @@ const app_name = core.getInput("app-name") || "";
         owner: owner,
         repo: repo,
         title: `:no_good: Branch \`${ref}\` has an incorrect name`,
-        body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` 
-                to the approved branch name format: \`${namePattern}\`\`{wording}\\branch_name\`.<br><br>\`Approved Wording: feature, hotfix, bugfix\`<br>\`Flags: ${flags}\``,
+        body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}\\branch_name\`.<br><br>\`Approved Wording: feature, hotfix, bugfix\`<br>\`Flags: ${flags}\``,
         assignee: sender,
       });
     }
