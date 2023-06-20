@@ -40,7 +40,7 @@ const delete_issue = core.getInput("delete") || "";
       core.setFailed(
         `The head branch of pull request ${eventPayload.pull_request.number} has an incorrent name. Please update the branch name to the approved regex naming convention format. Regex: ${regex} Flags: ${flags}`
       );
-      const issue_number: any = eventPayload.issue?.number;
+      const issue_number: any = eventPayload.pull_request.number;
       console.log(issue_number);
       await octokit.rest.issues.addLabels({
         issue_number: issue_number,

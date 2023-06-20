@@ -47,7 +47,6 @@ const flags = core.getInput("flags") || "i";
 const re = new RegExp(regex, flags);
 const delete_issue = core.getInput("delete") || "";
 (async () => {
-    var _a;
     try {
         if (event_name === "create" &&
             ref_type === "branch" &&
@@ -63,7 +62,7 @@ const delete_issue = core.getInput("delete") || "";
         if (eventPayload.pull_request &&
             re.test(eventPayload.pull_request.head.ref) === false) {
             core.setFailed(`The head branch of pull request ${eventPayload.pull_request.number} has an incorrent name. Please update the branch name to the approved regex naming convention format. Regex: ${regex} Flags: ${flags}`);
-            const issue_number = (_a = eventPayload.issue) === null || _a === void 0 ? void 0 : _a.number;
+            const issue_number = eventPayload.pull_request.number;
             console.log(issue_number);
             await octokit.rest.issues.addLabels({
                 issue_number: issue_number,
