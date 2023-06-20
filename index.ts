@@ -18,6 +18,8 @@ const re = new RegExp(regex, flags);
 
 const delete_issue = core.getInput("delete") || "";
 
+const app_name = core.getInput("app-name") || "";
+
 (async () => {
   try {
     if (
@@ -25,11 +27,18 @@ const delete_issue = core.getInput("delete") || "";
       ref_type === "branch" &&
       re.test(ref) === false
     ) {
+      let namePattern;
+      if (app_name != "") {
+        namePattern = app_name + "\\";
+      } else {
+        namePattern = "";
+      }
       await octokit.rest.issues.create({
         owner: owner,
         repo: repo,
         title: `:no_good: Branch \`${ref}\` has an incorrect name`,
-        body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved regex naming convention format below.<br><br>\`Regex: ${regex}\`<br>\`Flags: ${flags}\``,
+        body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` 
+                to the approved branch name format: \`${namePattern}\`\`{wording}\\branch_name\`.<br><br>\`Approved Wording: feature, hotfix, bugfix\`<br>\`Flags: ${flags}\``,
         assignee: sender,
       });
     }
