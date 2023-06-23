@@ -43,9 +43,7 @@ const sender = (_c = eventPayload.sender) === null || _c === void 0 ? void 0 : _
 const ref = eventPayload.ref;
 const ref_type = eventPayload.ref_type;
 const regex = core.getInput("regex");
-const flags = core.getInput("flags") || "i";
-const re = new RegExp(regex, flags);
-const delete_issue = core.getInput("delete") || "";
+const re = new RegExp(regex);
 const app_name = core.getInput("app-name") || "";
 let namePattern = "";
 if (app_name != "") {
@@ -66,7 +64,7 @@ if (app_name != "") {
         }
         if (eventPayload.pull_request &&
             re.test(eventPayload.pull_request.head.ref) === false) {
-            core.setFailed(`The head branch of pull request ${eventPayload.pull_request.number} has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``);
+            core.setFailed(`The head branch of pull request ${eventPayload.pull_request.number} has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`);
             await octokit.rest.issues.addLabels({
                 issue_number: eventPayload.pull_request.number,
                 owner: owner,
@@ -124,43 +122,22 @@ if (app_name != "") {
                         }
                         if (issue.title ===
                             `:no_good: Branch \`${ref}\` has an incorrect name`) {
-                            if (delete_issue === "true") {
-                                try {
-                                    const query = /* GraphQL */ `
-                    mutation ($issueId: ID!) {
-                      deleteIssue(input: { issueId: $issueId }) {
-                        clientMutationId
-                      }
+                            try {
+                                const query = /* GraphQL */ `
+                  mutation ($issueId: ID!) {
+                    closeIssue(input: { issueId: $issueId }) {
+                      clientMutationId
                     }
-                  `;
-                                    dataJSON = await octokit.graphql({
-                                        query,
-                                        issueId: issue.id,
-                                    });
-                                }
-                                catch (error) {
-                                    if (error instanceof Error)
-                                        core.setFailed(`${error.message}`);
-                                }
+                  }
+                `;
+                                dataJSON = await octokit.graphql({
+                                    query,
+                                    issueId: issue.id,
+                                });
                             }
-                            else {
-                                try {
-                                    const query = /* GraphQL */ `
-                    mutation ($issueId: ID!) {
-                      closeIssue(input: { issueId: $issueId }) {
-                        clientMutationId
-                      }
-                    }
-                  `;
-                                    dataJSON = await octokit.graphql({
-                                        query,
-                                        issueId: issue.id,
-                                    });
-                                }
-                                catch (error) {
-                                    if (error instanceof Error)
-                                        core.setFailed(`${error.message}`);
-                                }
+                            catch (error) {
+                                if (error instanceof Error)
+                                    core.setFailed(`${error.message}`);
                             }
                         }
                     }
