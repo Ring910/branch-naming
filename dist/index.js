@@ -96,9 +96,7 @@ const app_name_list = core.getInput("app-name-list") || "";
                 labels: ["Valid Branch Name"],
             });
         }
-        if (event_name === "delete" &&
-            ref_type === "branch" &&
-            re.test(ref) === false) {
+        if (event_name === "delete" && ref_type === "branch") {
             try {
                 let endCursor = null;
                 const query = /* GraphQL */ `
