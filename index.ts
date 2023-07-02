@@ -126,7 +126,9 @@ const app_name_list = core.getInput("app-name-list") || "";
 
             if (
               issue.title ===
-              `:no_good: Branch \`${ref}\` has an incorrect name`
+                `:no_good: Branch \`${ref}\` has an incorrect name` ||
+              issue.title ===
+                `:no_good: App name of Branch \`${ref}\` is not exist`
             ) {
               try {
                 const query = /* GraphQL */ `
