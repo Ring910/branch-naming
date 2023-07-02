@@ -11,6 +11,9 @@ inputs:
   app-name:
     description: "Name of the application"
     required: false
+  app-name-list:
+    description: "List of the application name"
+    required: false
 
 runs:
   using: "node16"

@@ -45,18 +45,30 @@ const ref_type = eventPayload.ref_type;
 const regex = core.getInput("regex");
 const re = new RegExp(regex);
 const app_name = core.getInput("app-name") || "";
-let namePattern = "";
-if (app_name != "") {
-    namePattern = app_name + "/";
-}
+const app_name_list = core.getInput("app-name-list") || "";
 (async () => {
     try {
-        if (app_name != "") {
-            console.log(app_name.split(","));
+        let namePattern = "";
+        if (app_name_list != "") {
+            let app_list = app_name_list.split(",");
+            if (app_list.includes(app_name)) {
+                namePattern = app_name + "/";
+            }
+            else {
+                core.setFailed(`The app name is not exist. Please refer to the application name list in APPOWNERS`);
+                await octokit.rest.issues.create({
+                    owner: owner,
+                    repo: repo,
+                    title: `:no_good: App name of Branch \`${ref}\` is not exist`,
+                    body: `:wave: @${sender} <br><br>Please refer to the application name list in APPOWNERS`,
+                    assignee: sender,
+                });
+            }
         }
         if (event_name === "create" &&
             ref_type === "branch" &&
             re.test(ref) === false) {
+            core.setFailed(`Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`);
             await octokit.rest.issues.create({
                 owner: owner,
                 repo: repo,
