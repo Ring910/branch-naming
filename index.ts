@@ -24,6 +24,9 @@ if (app_name != "") {
 
 (async () => {
   try {
+    if (app_name != "") {
+      console.log(app_name.split(","));
+    }
     if (
       event_name === "create" &&
       ref_type === "branch" &&
