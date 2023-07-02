@@ -54,7 +54,9 @@ const app_name_list = core.getInput("app-name-list") || "";
             if (app_list.includes(app_name)) {
                 namePattern = app_name + "/";
             }
-            else {
+        }
+        if (event_name === "create" && ref_type == "branch") {
+            if (namePattern == "") {
                 core.setFailed(`The app name is not exist. Please refer to the application name list in APPOWNERS`);
                 await octokit.rest.issues.create({
                     owner: owner,
@@ -64,18 +66,16 @@ const app_name_list = core.getInput("app-name-list") || "";
                     assignee: sender,
                 });
             }
-        }
-        if (event_name === "create" &&
-            ref_type === "branch" &&
-            re.test(ref) === false) {
-            core.setFailed(`Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`);
-            await octokit.rest.issues.create({
-                owner: owner,
-                repo: repo,
-                title: `:no_good: Branch \`${ref}\` has an incorrect name`,
-                body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
-                assignee: sender,
-            });
+            if (re.test(ref) === false) {
+                core.setFailed(`Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`);
+                await octokit.rest.issues.create({
+                    owner: owner,
+                    repo: repo,
+                    title: `:no_good: Branch \`${ref}\` has an incorrect name`,
+                    body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
+                    assignee: sender,
+                });
+            }
         }
         if (eventPayload.pull_request &&
             re.test(eventPayload.pull_request.head.ref) === false) {
