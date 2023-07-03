@@ -66,7 +66,7 @@ const app_name_list = core.getInput("app-name-list") || "";
                     assignee: sender,
                 });
             }
-            if (re.test(ref) === false) {
+            if (namePattern != "" && re.test(ref) === false) {
                 core.setFailed(`Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`);
                 await octokit.rest.issues.create({
                     owner: owner,
