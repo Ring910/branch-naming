@@ -51,27 +51,19 @@ const app = core.getInput("app") || false;
     try {
         let namePattern = "";
         if (event_name === "create" && ref_type == "branch") {
-            if (app_name_list == "") {
-                if (app) {
-                    namePattern = "{app-name}/";
-                }
-                if (re.test(ref) === false) {
-                    core.setFailed(`Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`);
-                    await octokit.rest.issues.create({
-                        owner: owner,
-                        repo: repo,
-                        title: `:no_good: Branch \`${ref}\` has an incorrect name`,
-                        body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
-                        assignee: sender,
-                    });
-                }
-            }
-            else {
+            // feature/abcd
+            // etmp/feature/abcd
+            // plt-web/abcd/branch-name
+            if (app_name_list != "") {
+                // etmp/feature/abcd
+                // plt-web/abcd/branch-name
                 let app_list = app_name_list.split(",");
                 if (app_list.includes(app_name)) {
+                    // plt-web/abcd/branch-name
                     namePattern = app_name + "/";
                 }
-                if (namePattern == "") {
+                else {
+                    // etmp/feature/abcd
                     core.setFailed(`The app name is not exist. Please refer to the application name list in APPOWNERS`);
                     await octokit.rest.issues.create({
                         owner: owner,
@@ -81,6 +73,22 @@ const app = core.getInput("app") || false;
                         assignee: sender,
                     });
                 }
+            }
+            else {
+                // feature/abcd
+                namePattern = "{app-name}/";
+            }
+            if (re.test(ref) === false) {
+                // feature/abcd
+                // plt-web/abcd/branch-name
+                core.setFailed(`Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`);
+                await octokit.rest.issues.create({
+                    owner: owner,
+                    repo: repo,
+                    title: `:no_good: Branch \`${ref}\` has an incorrect name`,
+                    body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
+                    assignee: sender,
+                });
             }
         }
         // if (app_name_list != "") {
