@@ -17,21 +17,26 @@ const re = new RegExp(regex);
 
 const app_name = core.getInput("app-name") || "";
 const app_name_list = core.getInput("app-name-list") || "";
+const app = core.getInput("app") || false;
 
 (async () => {
   try {
     let namePattern = "";
     if (event_name === "create" && ref_type == "branch") {
       if (app_name_list == "") {
+        if (app) {
+          namePattern = "{app-name}/";
+        }
+
         if (re.test(ref) === false) {
           core.setFailed(
-            `Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`{wording}/branch-name\`. Wording: feature, hotfix, bugfix`
+            `Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`
           );
           await octokit.rest.issues.create({
             owner: owner,
             repo: repo,
             title: `:no_good: Branch \`${ref}\` has an incorrect name`,
-            body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
+            body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
             assignee: sender,
           });
         }
