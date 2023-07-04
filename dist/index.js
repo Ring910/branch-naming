@@ -50,36 +50,36 @@ const app = core.getInput("app") || false;
 (async () => {
     try {
         let namePattern = "";
-        if (event_name === "create" && ref_type == "branch") {
-            // feature/abcd
+        // feature/abcd
+        // etmp/feature/abcd
+        // plt-web/abcd/branch-name
+        if (app_name_list != "") {
             // etmp/feature/abcd
             // plt-web/abcd/branch-name
-            if (app_name_list != "") {
-                // etmp/feature/abcd
+            let app_list = app_name_list.split(",");
+            if (app_list.includes(app_name)) {
                 // plt-web/abcd/branch-name
-                let app_list = app_name_list.split(",");
-                if (app_list.includes(app_name)) {
-                    // plt-web/abcd/branch-name
-                    namePattern = app_name + "/";
-                }
-                else {
-                    // etmp/feature/abcd
-                    core.setFailed(`The app name is not exist. Please refer to the application name list in APPOWNERS`);
-                    await octokit.rest.issues.create({
-                        owner: owner,
-                        repo: repo,
-                        title: `:no_good: App name of Branch \`${ref}\` is not exist`,
-                        body: `:wave: @${sender} <br><br>Please refer to the application name list in APPOWNERS`,
-                        assignee: sender,
-                    });
-                }
+                namePattern = app_name + "/";
             }
             else {
-                // feature/abcd
-                if (app_name != "") {
-                    namePattern = "{app-name}/";
-                }
+                // etmp/feature/abcd
+                core.setFailed(`The app name is not exist. Please refer to the application name list in APPOWNERS`);
+                await octokit.rest.issues.create({
+                    owner: owner,
+                    repo: repo,
+                    title: `:no_good: App name of Branch \`${ref}\` is not exist`,
+                    body: `:wave: @${sender} <br><br>Please refer to the application name list in APPOWNERS`,
+                    assignee: sender,
+                });
             }
+        }
+        else {
+            // feature/abcd
+            if (app_name != "") {
+                namePattern = "{app-name}/";
+            }
+        }
+        if (event_name === "create" && ref_type == "branch") {
             if (re.test(ref) === false) {
                 // feature/abcd
                 // plt-web/abcd/branch-name
