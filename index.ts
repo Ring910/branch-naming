@@ -49,7 +49,9 @@ const app = core.getInput("app") || false;
         }
       } else {
         // feature/abcd
-        namePattern = "{app-name}/";
+        if (app_name != "") {
+          namePattern = "{app-name}/";
+        }
       }
 
       if (re.test(ref) === false) {
