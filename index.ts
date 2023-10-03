@@ -22,18 +22,35 @@ const app = core.getInput("app") || false;
 (async () => {
   try {
     let namePattern = "";
-    // feature/abcd
-    // etmp/feature/abcd
-    // plt-web/abcd/branch-name
+    let flag = true;
     if (app_name_list != "") {
-      // etmp/feature/abcd
-      // plt-web/abcd/branch-name
       let app_list = app_name_list.split(",");
       if (app_list.includes(app_name)) {
-        // plt-web/abcd/branch-name
         namePattern = app_name + "/";
       } else {
-        // etmp/feature/abcd
+        flag = false;
+      }
+    } else {
+      if (app_name != "") {
+        namePattern = "{app-name}/";
+      }
+    }
+
+    if (event_name === "create" && ref_type == "branch") {
+      if (flag) {
+        if (re.test(ref) === false) {
+          core.setFailed(
+            `Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`
+          );
+          await octokit.rest.issues.create({
+            owner: owner,
+            repo: repo,
+            title: `:no_good: Branch \`${ref}\` has an incorrect name`,
+            body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
+            assignee: sender,
+          });
+        }
+      } else {
         core.setFailed(
           `The app name is not exist. Please refer to the application name list in APPOWNERS`
         );
@@ -45,90 +62,39 @@ const app = core.getInput("app") || false;
           assignee: sender,
         });
       }
-    } else {
-      // feature/abcd
-      if (app_name != "") {
-        namePattern = "{app-name}/";
-      }
     }
 
-    if (event_name === "create" && ref_type == "branch") {
-      if (re.test(ref) === false) {
-        // feature/abcd
-        // plt-web/abcd/branch-name
+    if (eventPayload.pull_request) {
+      if (flag) {
+        if (re.test(eventPayload.pull_request.head.ref) === true) {
+          await octokit.rest.issues.addLabels({
+            issue_number: eventPayload.pull_request.number,
+            owner: owner,
+            repo: repo,
+            labels: ["Valid Branch Name Format"],
+          });
+        } else {
+          core.setFailed(
+            `The head branch of pull request ${eventPayload.pull_request.number} has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`
+          );
+          await octokit.rest.issues.addLabels({
+            issue_number: eventPayload.pull_request.number,
+            owner: owner,
+            repo: repo,
+            labels: ["Invalid Branch Name Format"],
+          });
+        }
+      } else {
         core.setFailed(
-          `Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`
+          `The app name is not exist. Please refer to the application name list in APPOWNERS`
         );
-        await octokit.rest.issues.create({
+        await octokit.rest.issues.addLabels({
+          issue_number: eventPayload.pull_request.number,
           owner: owner,
           repo: repo,
-          title: `:no_good: Branch \`${ref}\` has an incorrect name`,
-          body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
-          assignee: sender,
+          labels: ["App Name Not Exist"],
         });
       }
-    }
-
-    // if (app_name_list != "") {
-    //   let app_list = app_name_list.split(",");
-    //   if (app_list.includes(app_name)) {
-    //     namePattern = app_name + "/";
-    //   }
-    // }
-
-    // if (event_name === "create" && ref_type == "branch") {
-    //   if (namePattern == "") {
-    //     core.setFailed(
-    //       `The app name is not exist. Please refer to the application name list in APPOWNERS`
-    //     );
-    //     await octokit.rest.issues.create({
-    //       owner: owner,
-    //       repo: repo,
-    //       title: `:no_good: App name of Branch \`${ref}\` is not exist`,
-    //       body: `:wave: @${sender} <br><br>Please refer to the application name list in APPOWNERS`,
-    //       assignee: sender,
-    //     });
-    //   }
-
-    //   if (namePattern != "" && re.test(ref) === false) {
-    //     core.setFailed(
-    //       `Branch \`${ref}\` has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`
-    //     );
-    //     await octokit.rest.issues.create({
-    //       owner: owner,
-    //       repo: repo,
-    //       title: `:no_good: Branch \`${ref}\` has an incorrect name`,
-    //       body: `:wave: @${sender} <br><br>Please update the branch name \`${ref}\` to the approved branch name format: \`${namePattern}{wording}/branch-name\`.<br><br>\`Wording: feature, hotfix, bugfix\``,
-    //       assignee: sender,
-    //     });
-    //   }
-    // }
-
-    if (
-      eventPayload.pull_request &&
-      re.test(eventPayload.pull_request.head.ref) === false
-    ) {
-      core.setFailed(
-        `The head branch of pull request ${eventPayload.pull_request.number} has an incorrect name. Please update the branch name to the approved branch name format: \`${namePattern}{wording}/branch-name\`. Wording: feature, hotfix, bugfix`
-      );
-      await octokit.rest.issues.addLabels({
-        issue_number: eventPayload.pull_request.number,
-        owner: owner,
-        repo: repo,
-        labels: ["Invalid Branch Name"],
-      });
-    }
-
-    if (
-      eventPayload.pull_request &&
-      re.test(eventPayload.pull_request.head.ref) === true
-    ) {
-      await octokit.rest.issues.addLabels({
-        issue_number: eventPayload.pull_request.number,
-        owner: owner,
-        repo: repo,
-        labels: ["Valid Branch Name"],
-      });
     }
 
     if (event_name === "delete" && ref_type === "branch") {
